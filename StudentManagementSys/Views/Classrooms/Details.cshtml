@@ -1,0 +1,36 @@
+﻿@model StudentManagementSys.Controllers.Dto.ClassroomDto
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Classroom</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.StudentsID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.StudentsID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.HomeRoomTeacherID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.HomeRoomTeacherID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.MonitorID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.MonitorID)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.CRID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

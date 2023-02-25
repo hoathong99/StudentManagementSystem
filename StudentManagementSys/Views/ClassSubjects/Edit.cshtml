@@ -1,0 +1,74 @@
+﻿@model StudentManagementSys.Controllers.Dto.ClassSubjectDto
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>ClassSubject</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="classSubjectId" />
+            <div class="form-group">
+                <label asp-for="classSubjectCode" class="control-label"></label>
+                <input asp-for="classSubjectCode" class="form-control" />
+                <span asp-validation-for="classSubjectCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="subjectCode" class="control-label"></label>
+                <input asp-for="subjectCode" class="form-control" />
+                <span asp-validation-for="subjectCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubjectName" class="control-label"></label>
+                <input asp-for="SubjectName" class="form-control" />
+                <span asp-validation-for="SubjectName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="typeClassSubject" class="control-label"></label>
+                <input asp-for="typeClassSubject" class="form-control" />
+                <span asp-validation-for="typeClassSubject" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="lstStudentID" class="control-label"></label>
+                <input asp-for="lstStudentID" class="form-control" />
+                <span asp-validation-for="lstStudentID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TeacherID" class="control-label"></label>
+                <input asp-for="TeacherID" class="form-control" />
+                <span asp-validation-for="TeacherID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="room" class="control-label"></label>
+                <input asp-for="room" class="form-control" />
+                <span asp-validation-for="room" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="schedule" class="control-label"></label>
+                <input asp-for="schedule" class="form-control" />
+                <span asp-validation-for="schedule" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Semester" class="control-label"></label>
+                <input asp-for="Semester" class="form-control" />
+                <span asp-validation-for="Semester" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
