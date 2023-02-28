@@ -17,16 +17,16 @@
                 <input asp-for="School" class="form-control" />
                 <span asp-validation-for="School" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label asp-for="LstClassSubject" class="control-label"></label>
                 <input asp-for="LstClassSubject" class="form-control" />
                 <span asp-validation-for="LstClassSubject" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LstClassRoom" class="control-label"></label>
-                <input asp-for="LstClassRoom" class="form-control" />
+            </div>*@
+            @*<div class="form-group">
+                <label asp-for="LstClassRoom" hidden class="control-label"></label>
+                <input asp-for="LstClassRoom" hidden class="form-control" />
                 <span asp-validation-for="LstClassRoom" class="text-danger"></span>
-            </div>
+            </div>*@
             <input type="hidden" asp-for="UID" />
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -85,7 +85,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Authority" class="control-label"></label>
-                <input asp-for="Authority" class="form-control" />
+                <input asp-for="Authority" disabled class="form-control" />
                 <span asp-validation-for="Authority" class="text-danger"></span>
             </div>
             <div class="form-group">

@@ -6,13 +6,14 @@ namespace StudentManagementSys.Model
 {
     public class User
     {
-        public String? AccountId { get; set; }
+       
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public String UID { get; set; }
         [Required]
         public String Name { get; set; }
         [Required]
         public String? Status { get; set; }
+        public String? AccountId { get; set; }
         public DateTime? BirtDate { get; set; }
         public String Type { get; set; }
         public String? PhoneNumber { get; set; }

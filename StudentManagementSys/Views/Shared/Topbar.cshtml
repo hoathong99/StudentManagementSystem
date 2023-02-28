@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<ul class="navbar-nav">
+    @if (User.IsInRole("student"))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Students" asp-action="CurrentStudentDetail">Personal info</a>
+        </li>
+    }
+    @if (User.IsInRole("staff"))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="CurrentStaffDetail">Personal info</a>
+        </li>
+    }
+    @if (User.IsInRole("staff"))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Roles" asp-action="Index">Roles</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Students" asp-action="Index">Students</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Classrooms" asp-action="Index">Classrooms</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="Index">Staffs</a>
+        </li>
+    }
+</ul>
+

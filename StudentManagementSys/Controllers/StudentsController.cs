@@ -12,6 +12,10 @@ using Microsoft.DotNet.Scaffolding.Shared.ProjectModel;
 using AutoMapper;
 using StudentManagementSys.Controllers.Dto;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Security.Claims;
+using StudentManagementSys.Views.Classrooms;
 
 namespace StudentManagementSys.Controllers
 {
@@ -20,10 +24,13 @@ namespace StudentManagementSys.Controllers
     {
         private readonly StudentManagementSysContext _context;
         private readonly StudentServices _StuService;
-        public StudentsController(StudentManagementSysContext context)
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public StudentsController(StudentManagementSysContext context , UserManager<IdentityUser> userManager)
         {
             _context = context;
-            _StuService = new StudentServices(context);
+            _StuService = new StudentServices(context,userManager);
+            _userManager = userManager;
         }
 
         //AutoMapper Configuration
@@ -43,7 +50,7 @@ namespace StudentManagementSys.Controllers
         }
 
         // GET: Students
-        [Authorize(Roles = "staff")]
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             List<StudentDto> lsStuDto = await _StuService.GetAllStudents();
@@ -68,6 +75,15 @@ namespace StudentManagementSys.Controllers
             return View(student);
         }
 
+        public async Task<IActionResult> CurrentStudentDetail()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+            var userName = User.FindFirstValue(ClaimTypes.Name); // will give the user's userName
+            var userEmail = User.FindFirstValue(ClaimTypes.Email); // will give the user's Email
+            var currentStudent = await _StuService.GetStudentByAccount(userId);
+            return View(currentStudent);
+        }
+
         // GET: Students/Create
         [Authorize(Roles = "staff")]
         public IActionResult Create()
@@ -81,7 +97,7 @@ namespace StudentManagementSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "staff")]
-        public async Task<IActionResult> Create([Bind("SchoolSession,CPA,TotalCredit,PassedCredit,ClassRoomID,Program,SubjectEnlisted,UID,Name,Status,BirtDate,Type,PhoneNumber,Email,Sex,Address,Relative,YearofStart,Religion,Authority,BCKey,StoreID")] StudentDto studentDto)
+        public async Task<IActionResult> Create([Bind("SchoolSession,AccountId,CPA,TotalCredit,PassedCredit,ClassRoomID,Program,SubjectEnlisted,UID,Name,Status,BirtDate,Type,PhoneNumber,Email,Sex,Address,Relative,YearofStart,Religion,Authority,BCKey,StoreID")] StudentDto studentDto)
         {
             var rs = await _StuService.RegisterStudentAsync(studentDto);
             return RedirectToAction(nameof(Index));
@@ -103,7 +119,7 @@ namespace StudentManagementSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("SchoolSession,CPA,TotalCredit,PassedCredit,ClassRoomID,Program,SubjectEnlisted,UID,Name,Status,BirtDate,Type,PhoneNumber,Email,Sex,Address,Relative,YearofStart,Religion,Authority,BCKey,StoreID")] StudentDto student)
+        public async Task<IActionResult> Edit(string id, [Bind("SchoolSession,AccountId,CPA,TotalCredit,PassedCredit,ClassRoomID,Program,SubjectEnlisted,UID,Name,Status,BirtDate,Type,PhoneNumber,Email,Sex,Address,Relative,YearofStart,Religion,Authority,BCKey,StoreID")] StudentDto student)
         {
             if (id != student.UID)
             {

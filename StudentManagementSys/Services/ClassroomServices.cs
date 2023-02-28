@@ -117,5 +117,18 @@ namespace StudentManagementSys.Services
             return true;
         }
 
+        public async Task<Boolean> AddStudent(List<String> sIdList, String cId)
+        {
+            var classroom = await GetClassroom(cId);
+            classroom.StudentsID.Union(sIdList);
+            var classroomDto = new Mapper(config).Map<ClassroomDto>(classroom);
+            var rs = await UpdateClassroom(classroom.CRID, classroomDto);
+            if(rs == null)
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
 }

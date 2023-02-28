@@ -12,7 +12,7 @@ using StudentManagementSys.Data;
 namespace StudentManagementSys.Migrations
 {
     [DbContext(typeof(StudentManagementSysContext))]
-    [Migration("20230225190918_init")]
+    [Migration("20230228141833_init")]
     partial class init
     {
         /// <inheritdoc />

@@ -8,8 +8,8 @@
 <h1>View Roles </h1>
 <p>
     <a asp-action="Create">Create Role</a>
+    <a asp-action="AccountTable">Set Account Role</a>
 </p>
-
 <table class="table">
     <thead>
         <tr>
@@ -24,7 +24,13 @@
             <tr>
                 <td>@Html.DisplayFor(model => item.Id)</td>
                 <td>@Html.DisplayFor(model => item.Name)</td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
             </tr>
+        
         }
     </tbody>
 </table>
+
+

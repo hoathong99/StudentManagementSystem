@@ -6,16 +6,18 @@ using StudentManagementSys.Controllers.Dto;
 using StudentManagementSys.Model;
 using StudentManagementSys.Data;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Identity;
 
 namespace StudentManagementSys.Services
 {
     public class StaffServices
     {
         private readonly StudentManagementSysContext _context;
-
-        public StaffServices(StudentManagementSysContext context)
+        private readonly UserManager<IdentityUser> _userManager;
+        public StaffServices(StudentManagementSysContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         //AutoMapper Configuration
@@ -68,12 +70,29 @@ namespace StudentManagementSys.Services
         {
             var mapper = new Mapper(config);
 
-            if (id == null || _context.Student == null)
+            if (id == null || _context.Staff == null)
             {
                 return null;
             }
             Staff staff = await _context.Staff
                 .FirstOrDefaultAsync(m => m.UID == id);
+            if (staff == null)
+            {
+                return null;
+            }
+            var rs = mapper.Map<StaffDto>(staff);
+            return rs;
+        }
+        public async Task<StaffDto> GetStaffByAccount(String id)
+        {
+            var mapper = new Mapper(config);
+
+            if (id == null || _context.Staff == null)
+            {
+                return null;
+            }
+            Staff staff = await _context.Staff
+                .FirstOrDefaultAsync(m => m.AccountId == id);
             if (staff == null)
             {
                 return null;
@@ -88,7 +107,15 @@ namespace StudentManagementSys.Services
             {
                 return null;
             }
+            var oG = await GetStaff(id);
+            stDto.LstClassRoom = oG.LstClassRoom;
+            stDto.LstClassSubject = oG.LstClassSubject;
+            stDto.AccountId = oG.AccountId;
+            stDto.UID = oG.UID;
+            stDto.Authority = oG.Authority;
+
             var staff = new Mapper(configReversed).Map<Staff>(stDto);
+            
             try
             {
                 _context.ChangeTracker.Clear();
@@ -113,7 +140,8 @@ namespace StudentManagementSys.Services
             {
                 _context.Staff.Remove(staff);
             }
-
+            var user = _userManager.Users.FirstOrDefault(x => x.Id == staff.AccountId);
+            await _userManager.DeleteAsync(user);
             await _context.SaveChangesAsync();
             return true;
         }

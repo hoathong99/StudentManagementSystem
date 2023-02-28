@@ -1,0 +1,55 @@
+﻿@model StudentManagementSys.Views.Classrooms.AddStudentToClassVM
+
+@{
+    ViewData["Title"] = "StudentList";
+}
+
+<h1>Available students</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @*@Html.DisplayNameFor(model => model.UID)*@
+                <h3>UID</h3>
+            </th>
+            <th>
+                @*@Html.DisplayNameFor(model => model.Program)*@
+                <h3>Program</h3>
+            </th>
+            <th>
+                @*@Html.DisplayNameFor(model => model.Name)*@
+                <h3>Name</h3>
+            </th>
+            <th>
+                @*@Html.DisplayNameFor(model => model.Status)*@
+                <h3>Status</h3>
+            </th>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.students)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Program)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+
+                <td>
+                    <a asp-action="AddToClass" asp-route-sid="@item.UID" asp-route-cid="@Model.cid">Add to class</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

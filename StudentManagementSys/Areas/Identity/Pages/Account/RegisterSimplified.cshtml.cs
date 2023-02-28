@@ -27,24 +27,24 @@ using StudentManagementSys.Services;
 
 namespace StudentManagementSys.Areas.Identity.Pages.Account
 {
-    public class RegisterModel : PageModel
+    public class RegisterModelSimplified : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
-        private readonly ILogger<RegisterModel> _logger;
+        private readonly ILogger<RegisterModelSimplified> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         private readonly StudentServices _StuService;
         private readonly StudentManagementSysContext _context;
         private readonly StaffServices _StaService;
-        public RegisterModel(
+        public RegisterModelSimplified(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
-            ILogger<RegisterModel> logger,
+            ILogger<RegisterModelSimplified> logger,
             IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager,
             StudentManagementSysContext studentManagementSysContext
@@ -178,7 +178,7 @@ namespace StudentManagementSys.Areas.Identity.Pages.Account
                     {
                         await _userManager.AddToRoleAsync(user, Input.Role);
                     }
-                    if (Input.AccountType == "student")
+                    if(Input.AccountType == "student")
                     {
                         var temp = new StudentDto();
                         temp.AccountId = user.Id;
@@ -215,9 +215,10 @@ namespace StudentManagementSys.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
+                        //await _signInManager.SignInAsync(user, isPersistent: false);
+                        //return LocalRedirect(returnUrl);
+                        return RedirectToPage("AccountTable");
+                    } 
                 }
                 foreach (var error in result.Errors)
                 {

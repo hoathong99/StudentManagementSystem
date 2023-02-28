@@ -7,6 +7,7 @@ namespace StudentManagementSys.Controllers.Dto
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public String UID { get; set; }
+        public String? AccountId { get; set; }
         [Required]
         public String Name { get; set; }
         [Required]

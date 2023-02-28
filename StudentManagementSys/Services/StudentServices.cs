@@ -6,16 +6,18 @@ using StudentManagementSys.Controllers.Dto;
 using StudentManagementSys.Model;
 using StudentManagementSys.Data;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Identity;
 
 namespace StudentManagementSys.Services
 {
     public class StudentServices
     {
         private readonly StudentManagementSysContext _context;
-
-        public StudentServices(StudentManagementSysContext context)
+        private readonly UserManager<IdentityUser> _userManager;
+        public StudentServices(StudentManagementSysContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         //AutoMapper Configuration
@@ -80,6 +82,24 @@ namespace StudentManagementSys.Services
             return rs;
         }
 
+        public async Task<StudentDto> GetStudentByAccount(String id)
+        {
+            var mapper = new Mapper(config);
+
+            if (id == null || _context.Student == null)
+            {
+                return null;
+            }
+            Student student = await _context.Student
+                .FirstOrDefaultAsync(m => m.AccountId == id);
+            if (student == null)
+            {
+                return null;
+            }
+            var rs = mapper.Map<StudentDto>(student);
+            return rs;
+        }
+
         public async Task<StudentDto> UpdateStudent(string id, StudentDto stuDto)
         {
             if (id != stuDto.UID)
@@ -113,6 +133,9 @@ namespace StudentManagementSys.Services
                 _context.Student.Remove(student);
             }
 
+            var user = _userManager.Users.FirstOrDefault(x => x.Id == student.AccountId);
+            await _userManager.DeleteAsync(user);
+            await _context.SaveChangesAsync();
             await _context.SaveChangesAsync();
             return true;
         }

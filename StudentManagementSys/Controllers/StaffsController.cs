@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,10 +22,10 @@ namespace StudentManagementSys.Controllers
         private readonly StudentManagementSysContext _context;
         private readonly StaffServices _StaService;
 
-        public StaffsController(StudentManagementSysContext context)
+        public StaffsController(StudentManagementSysContext context, UserManager<IdentityUser> _userManager)
         {
             _context = context;
-            _StaService = new StaffServices(context);
+            _StaService = new StaffServices(context, _userManager);
         }
 
         //AutoMapper Configuration
@@ -68,6 +70,15 @@ namespace StudentManagementSys.Controllers
                 return NotFound();
             }
             return View(staff);
+        }
+
+        public async Task<IActionResult> CurrentStaffDetail()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+            var userName = User.FindFirstValue(ClaimTypes.Name); // will give the user's userName
+            var userEmail = User.FindFirstValue(ClaimTypes.Email); // will give the user's Email
+            var currentStaff = await _StaService.GetStaffByAccount(userId);
+            return View(currentStaff);
         }
 
         // GET: Staffs/Create

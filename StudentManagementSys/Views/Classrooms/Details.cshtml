@@ -1,4 +1,4 @@
-﻿@model StudentManagementSys.Controllers.Dto.ClassroomDto
+﻿@model StudentManagementSys.Views.Classrooms.ClassroomVM
 
 @{
     ViewData["Title"] = "Details";
@@ -10,11 +10,11 @@
     <h4>Classroom</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StudentsID)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CRID)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StudentsID)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CRID)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.HomeRoomTeacherID)
@@ -28,9 +28,40 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.MonitorID)
         </dd>
+        <dd class="col-sm-10">
+            <h3>Students</h3>
+        </dd>
+
     </dl>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    ID
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.StudentsID)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.id)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.CRID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Back to List</a> |
+    <a asp-action="StudentList" asp-route-id="@Model?.CRID">Add Students</a>
 </div>
