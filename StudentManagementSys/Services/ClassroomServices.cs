@@ -6,16 +6,20 @@ using StudentManagementSys.Controllers.Dto;
 using StudentManagementSys.Model;
 using StudentManagementSys.Data;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Identity;
 
 namespace StudentManagementSys.Services
 {
     public class ClassroomServices
     {
         private readonly StudentManagementSysContext _context;
-
-        public ClassroomServices(StudentManagementSysContext context)
+        private readonly StudentServices _studentService;
+        
+        public ClassroomServices(StudentManagementSysContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _studentService = new StudentServices(context, userManager);
         }
 
         //AutoMapper Configuration
@@ -108,6 +112,12 @@ namespace StudentManagementSys.Services
                 return false;
             }
             var classroom = await _context.Classroom.FindAsync(id);
+            var Dto = new Mapper(config).Map<ClassroomDto>(classroom);
+
+            foreach(var s in Dto.StudentsID)
+            {
+                await RemoveStudent(s, id);
+            }
             if (classroom != null)
             {
                 _context.Classroom.Remove(classroom);
@@ -127,6 +137,64 @@ namespace StudentManagementSys.Services
             {
                 return false;
             }
+            return true;
+        }
+
+        public async Task<Boolean> AddStudent(String sId, String cId)
+        {
+            var classroom = await GetClassroom(cId);
+            var student = await _studentService.GetStudent(sId);
+
+            var classroomDto = new Mapper(config).Map<ClassroomDto>(classroom);
+
+            if(classroomDto.StudentsID== null)
+            {
+                classroomDto.StudentsID = new List<string>();
+            }
+
+            if (!classroomDto.StudentsID.Contains(sId))
+            {
+                classroomDto.StudentsID.Add(sId);
+                student.ClassRoomID = cId;
+            }
+            
+            var rs = await UpdateClassroom(classroom.CRID, classroomDto);
+            var rsStu = await _studentService.UpdateStudent(sId, student);
+            if (rs == null || rsStu == null)
+            {
+                return false;
+            }
+            System.Console.WriteLine("Student added to class /n");
+            return true;
+        }
+
+        public async Task<Boolean> RemoveStudent(String sId, String cId)
+        {
+            var classroom = await GetClassroom(cId);
+            var student = await _studentService.GetStudent(sId);
+
+            var classroomDto = new Mapper(config).Map<ClassroomDto>(classroom);
+
+            if (classroomDto.StudentsID == null)
+            {
+                classroomDto.StudentsID = new List<string>();
+            }
+
+            //if (!classroomDto.StudentsID.Contains(sId))
+            //{
+            //    classroomDto.StudentsID.Add(sId);
+            //    student.ClassRoomID = cId;
+            //}
+            classroomDto.StudentsID.Remove(sId);
+            student.ClassRoomID = "";
+
+            var rs = await UpdateClassroom(classroom.CRID, classroomDto);
+            var rsStu = await _studentService.UpdateStudent(sId, student);
+            if (rs == null || rsStu == null)
+            {
+                return false;
+            }
+            System.Console.WriteLine("Student removed from class /n");
             return true;
         }
 

@@ -139,19 +139,38 @@ namespace StudentManagementSys.Areas.Identity.Pages.Account
                 new SelectListItem { Text = "Staff", Value = "staff" },
                 new SelectListItem { Text = "Student", Value = "student" },
             };
-            Input = new InputModel()
+            if(_roleManager.Roles.Count<IdentityRole>() > 0)
             {
-                RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
+                Input = new InputModel()
                 {
-                    Text = i,
-                    Value = i
-                }),
-                AccountTypeLst = new List<SelectListItem>
+                    RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
+                    {
+                        Text = i,
+                        Value = i
+                    }),
+                    AccountTypeLst = new List<SelectListItem>
                 {
                     new SelectListItem { Text = "Staff", Value = "staff" },
                     new SelectListItem { Text = "Student", Value = "student" },
                 }
-            };
+                };
+            }
+            else
+            {
+                Input = new InputModel()
+                {
+                    RoleList = new List<SelectListItem>
+                    {
+                        new SelectListItem { Text = "Staff", Value = "staff" }
+                    },
+                    AccountTypeLst = new List<SelectListItem>
+                    {
+                        new SelectListItem { Text = "Staff", Value = "staff" },
+                        new SelectListItem { Text = "Student", Value = "student" },
+                    }
+                };
+            }
+            
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -174,6 +193,10 @@ namespace StudentManagementSys.Areas.Identity.Pages.Account
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     await _userManager.ConfirmEmailAsync(user, code);
+                    if (_roleManager.Roles.Count<IdentityRole>() == 0 )
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole("staff"));
+                    }
                     if (Input.Role != null)
                     {
                         await _userManager.AddToRoleAsync(user, Input.Role);

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<StudentManagementSys.Controllers.Dto.ClassroomDto>
+﻿@model IEnumerable<StudentManagementSys.Views.Classrooms.ClassroomVM>
 
 @{
     ViewData["Title"] = "Index";
@@ -16,7 +16,7 @@
                 @Html.DisplayNameFor(model => model.CRID)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.HomeRoomTeacherID)
+                @Html.DisplayNameFor(model => model.HomeRoomTeacherName)
             </th>
             <td>
                 @Html.DisplayNameFor(model => model.StudentsID)
@@ -34,7 +34,7 @@
                 @Html.DisplayFor(modelItem => item.CRID)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.HomeRoomTeacherID)
+                @Html.DisplayFor(modelItem => item.HomeRoomTeacherName)
             </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.StudentsID.Count)

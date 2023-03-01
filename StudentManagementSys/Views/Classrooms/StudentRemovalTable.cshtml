@@ -1,0 +1,58 @@
+﻿@model StudentManagementSys.Views.Classrooms.ClassroomVM
+
+@{
+    ViewData["Title"] = "StudentRemovalTable";
+}
+
+<h1>Edit</h1>
+
+<h4>Classroom</h4>
+<h5>@Model.CRID</h5>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        
+            <a> Student list</a>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            ID
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.StudentsID)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.id)
+                            </td>
+                            <td>
+                                <a asp-action="RemoveFromClass" asp-route-sid="@item.id" asp-route-cid="@Model.CRID">Remove</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a> |
+    <a asp-action="StudentList" asp-route-id="@Model?.CRID">Add Students</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

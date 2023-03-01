@@ -64,6 +64,27 @@ namespace StudentManagementSys.Services
             return lsStuDto;
         }
 
+        public async Task<List<StudentDto>> GetStudentsByClass(string cid)
+        {
+            var mapper = new Mapper(config);
+
+
+            if (_context.Student == null)
+            {
+                return null;
+            }
+            List<Student> lsStu = _context.Student.Where(x => x.ClassRoomID == cid).ToList();
+            List<StudentDto> lsStuDto = new List<StudentDto>();
+
+            //foreach (Student s in lsStu)
+            //{
+            //    lsStuDto.Add(mapper.Map<StudentDto>(s));
+            //}
+            lsStuDto = mapper.Map<List<StudentDto>>(lsStu);
+
+            return lsStuDto;
+        }
+
         public async Task<StudentDto> GetStudent(String id)
         {
             var mapper = new Mapper(config);
