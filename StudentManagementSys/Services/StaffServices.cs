@@ -146,5 +146,9 @@ namespace StudentManagementSys.Services
             return true;
         }
 
+        public Boolean IsExist(string id)
+        {
+            return (_context.Staff?.Any(e => e.UID == id)).GetValueOrDefault();
+        }
     }
 }

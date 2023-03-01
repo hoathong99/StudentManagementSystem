@@ -56,7 +56,8 @@ namespace StudentManagementSys.Controllers
             for(int i = 0; i< rs.Count; i++)
             {
                 var Studentcount = rs.ElementAt(i).StudentsID.Count();
-                vm.ElementAt(i).HomeRoomTeacherName = _staffServices.GetStaff(vm.ElementAt(i).HomeRoomTeacherID).Result.Name;
+                var homeRoomTeacher = _staffServices.GetStaff(vm.ElementAt(i).HomeRoomTeacherID).Result;
+                vm.ElementAt(i).HomeRoomTeacherName = homeRoomTeacher != null ? homeRoomTeacher.Name : "";
                 vm.ElementAt(i).StudentsID = new List<StudentVM>(new StudentVM[Studentcount]);
             }
 
@@ -115,6 +116,7 @@ namespace StudentManagementSys.Controllers
             vm.StaffList = avaiableStaff;
             vm.StudentList= avaiableStudent;
             vm.StudentsID = studentLst;
+       
             if (classroom == null)
             {
                 return NotFound();
@@ -181,6 +183,10 @@ namespace StudentManagementSys.Controllers
         [Authorize(Roles = "staff")]
         public async Task<IActionResult> Create([Bind("CRID,StudentsID,HomeRoomTeacherID,MonitorID")] ClassroomDto classroom)
         {
+            if (!_staffServices.IsExist(classroom.HomeRoomTeacherID))
+            {
+                return RedirectToAction(nameof(Create));
+            }
             var rs = await _classroomServices.RegisterClassroomAsync(classroom);
             if (!rs)
             {
@@ -192,70 +198,6 @@ namespace StudentManagementSys.Controllers
         // GET: Classrooms/Edit/5
         [Authorize(Roles = "staff")]
         public async Task<IActionResult> Edit(string id)
-        {
-            var classroom = await _classroomServices.GetClassroom(id);
-            var vm = new Mapper(config).Map<ClassroomVM>(classroom);
-            var staffs = _staffServices.GetAllStaffs().Result;
-            List<SelectListItem> avaiableStudent = new List<SelectListItem>();
-            List<SelectListItem> avaiableStaff = new List<SelectListItem>();
-            List<StudentVM> studentLst = new List<StudentVM>();
-
-            var LstStuDto = _studentServices.GetStudentsByClass(id).Result;
-
-            foreach (var item in LstStuDto)
-            {
-                StudentVM StuVm = new StudentVM
-                {
-                    id = item.UID,
-                    name = item.Name,
-                    status = item.Status
-                };
-                studentLst.Add(StuVm);
-            }
-
-            if (classroom.StudentsID != null)
-            {
-                foreach (var i in classroom.StudentsID)
-                {
-                    var stu = _studentServices.GetStudent(i).Result;
-                    avaiableStudent.Add(
-                        new SelectListItem
-                        {
-                            Text = stu.Name,
-                            Value = stu.UID
-                        }
-                    );
-                }
-            }
-
-            foreach (var i in staffs)
-            {
-                avaiableStaff.Add(
-                    new SelectListItem
-                    {
-                        Text = i.Name,
-                        Value = i.UID
-                    }
-                );
-            }
-            vm.StaffList = avaiableStaff;
-            vm.StudentList = avaiableStudent;
-            vm.StudentsID = studentLst;
-            if (classroom == null)
-            {
-                return NotFound();
-            }
-            if (vm.StudentsID == null)
-            {
-                vm.StudentsID = new List<StudentVM>();
-            }
-
-            return View(vm);
-        }
-
-        // GET: Classrooms/Edit/5
-        [Authorize(Roles = "staff")]
-        public async Task<IActionResult> StudentRemovalTable(string id)
         {
             var classroom = await _classroomServices.GetClassroom(id);
             var vm = new Mapper(config).Map<ClassroomVM>(classroom);
@@ -329,13 +271,81 @@ namespace StudentManagementSys.Controllers
             classroom.CRID = OG.CRID;
             classroom.StudentsID = OG.StudentsID;
 
+            if (!_staffServices.IsExist(id))
+            {
+                return RedirectToAction(nameof(Edit), new { id = id });
+            }
+
             var rs = await _classroomServices.UpdateClassroom(id, classroom);
             if (rs == null)
             {
-                return Problem("Cant edit classroom!");
+                return RedirectToAction(nameof(Edit), new { id = id });
             }
             return RedirectToAction(nameof(Index));
 
+        }
+
+        [Authorize(Roles = "staff")]
+        public async Task<IActionResult> StudentRemovalTable(string id)
+        {
+            var classroom = await _classroomServices.GetClassroom(id);
+            var vm = new Mapper(config).Map<ClassroomVM>(classroom);
+            var staffs = _staffServices.GetAllStaffs().Result;
+            List<SelectListItem> avaiableStudent = new List<SelectListItem>();
+            List<SelectListItem> avaiableStaff = new List<SelectListItem>();
+            List<StudentVM> studentLst = new List<StudentVM>();
+
+            var LstStuDto = _studentServices.GetStudentsByClass(id).Result;
+
+            foreach (var item in LstStuDto)
+            {
+                StudentVM StuVm = new StudentVM
+                {
+                    id = item.UID,
+                    name = item.Name,
+                    status = item.Status
+                };
+                studentLst.Add(StuVm);
+            }
+
+            if (classroom.StudentsID != null)
+            {
+                foreach (var i in classroom.StudentsID)
+                {
+                    var stu = _studentServices.GetStudent(i).Result;
+                    avaiableStudent.Add(
+                        new SelectListItem
+                        {
+                            Text = stu.Name,
+                            Value = stu.UID
+                        }
+                    );
+                }
+            }
+
+            foreach (var i in staffs)
+            {
+                avaiableStaff.Add(
+                    new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.UID
+                    }
+                );
+            }
+            vm.StaffList = avaiableStaff;
+            vm.StudentList = avaiableStudent;
+            vm.StudentsID = studentLst;
+            if (classroom == null)
+            {
+                return NotFound();
+            }
+            if (vm.StudentsID == null)
+            {
+                vm.StudentsID = new List<StudentVM>();
+            }
+
+            return View(vm);
         }
 
         // GET: Classrooms/Delete/5
