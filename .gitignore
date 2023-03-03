@@ -1,0 +1,5 @@
+*.vsidx
+*.cache
+*.json
+*.editorconfig
+*.props
