@@ -9,11 +9,14 @@
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="" asp-controller="Students" asp-action="CurrentStudentDetail">Personal info</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="ClassSubjects" asp-action="IndexForStudent">ClassSubjects</a>
+        </li>
     }
     @if (User.IsInRole("staff"))
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="CurrentStaffDetail">Personal info</a>
+            <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="CurrentStaffDetail">Personal info</a>  
         </li>
     }
     @if (User.IsInRole("staff"))
@@ -29,6 +32,9 @@
         </li>
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="Index">Staffs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="ClassSubjects" asp-action="Index">ClassSubjects</a>
         </li>
     }
 </ul>

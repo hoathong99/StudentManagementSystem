@@ -98,6 +98,7 @@ namespace StudentManagementSys.Controllers
         [Authorize(Roles = "staff")]
         public async Task<IActionResult> Create([Bind("SchoolSession,AccountId,CPA,TotalCredit,PassedCredit,ClassRoomID,Program,SubjectEnlisted,UID,Name,Status,BirtDate,Type,PhoneNumber,Email,Sex,Address,Relative,YearofStart,Religion,Authority,BCKey,StoreID")] StudentDto studentDto)
         {
+            
             var rs = await _StuService.RegisterStudentAsync(studentDto);
             return RedirectToAction(nameof(Index));
         }
@@ -124,13 +125,35 @@ namespace StudentManagementSys.Controllers
             {
                 return NotFound();
             }
+
+            var oG = await _StuService.GetStudent(student.UID);
+            student.UID = oG.UID;
+            student.AccountId = oG.AccountId;
+            student.ClassRoomID = oG.ClassRoomID;
+            if (student.Program == null)
+            {
+                student.Program = oG.Program;
+            }
+            student.SubjectEnlisted = oG.SubjectEnlisted;
+            student.Status = student.Status == null ? oG.Status : student.Status;
+            student.Authority = oG.Authority;
+            student.Type = student.Type == null ? oG.Type : student.Type;
+            student.SchoolSession = student.SchoolSession == null ? oG.SchoolSession : student.Type;
+
             var rs = await _StuService.UpdateStudent(id, student);
             if (rs == null)
             {
                 return Problem("saving context problem!");
             }
-
-            return RedirectToAction(nameof(Index));
+            if (User.IsInRole("staff"))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                return RedirectToAction(nameof(CurrentStudentDetail));
+            }
+                
         }
 
         // GET: Students/Delete/5

@@ -274,8 +274,8 @@ namespace StudentManagementSys.Controllers
             var OG = _classroomServices.GetClassroom(id).Result;
             classroom.CRID = OG.CRID;
             classroom.StudentsID = OG.StudentsID;
-
-            if (!_staffServices.IsExist(id))
+            
+            if (!_staffServices.IsExist(classroom.HomeRoomTeacherID))
             {
                 return RedirectToAction(nameof(Edit), new { id = id });
             }

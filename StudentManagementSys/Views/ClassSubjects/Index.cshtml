@@ -5,10 +5,13 @@
 }
 
 <h1>Index</h1>
+@if (User.IsInRole("staff"))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -72,11 +75,20 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Semester)
             </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.classSubjectId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.classSubjectId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.classSubjectId">Delete</a>
-            </td>
+                @if (User.IsInRole("staff"))
+                {
+                    <td>
+                    <a asp-action="Edit" asp-route-id="@item.classSubjectId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.classSubjectId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.classSubjectId">Delete</a>
+                    </td>
+                }
+                @if (User.IsInRole("student"))
+                {
+                    <td>
+                        <a asp-action="EnlistClass" asp-route-csId="@item.classSubjectId">Enlist</a> |
+                    </td>
+                }
         </tr>
 }
     </tbody>

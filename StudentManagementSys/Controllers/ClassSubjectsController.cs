@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -41,6 +43,7 @@ namespace StudentManagementSys.Controllers
         );
 
         // GET: ClassSubjects
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var rs = await _classSubjectServices.GetAllClassSubject();
@@ -51,8 +54,23 @@ namespace StudentManagementSys.Controllers
             var vm = new Mapper(config).Map<List<ClassSubjectVM>>(rs);
             return View(vm);
         }
+        [Authorize]
+        public async Task<IActionResult> IndexForStudent()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentStudent = await _studentServices.GetStudentByAccount(userId);
+
+            var rs = await _classSubjectServices.GetClassSubjectsByStudent(currentStudent.UID);
+            if (rs == null)
+            {
+                return NotFound();
+            }
+            var vm = new Mapper(config).Map<List<ClassSubjectVM>>(rs);
+            return View(vm);
+        }
 
         // GET: ClassSubjects/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(string id)
         {
             var classSubject = await _classSubjectServices.GetClassSubject(id);
@@ -60,22 +78,41 @@ namespace StudentManagementSys.Controllers
             {
                 return NotFound();
             }
-            List<StudentVM> stuVmList= new List<StudentVM>();
+            //List<StudentVM> stuVmList= new List<StudentVM>();
 
-            foreach(var i in classSubject.lstStudentID)
-            {
-                var stu = await _studentServices.GetStudent(i);
-                StudentVM stuVm = new StudentVM { 
-                    id = stu.UID, 
-                    name = stu.Name, 
-                    status = stu.Status
-                };
-                stuVmList.Add(stuVm);
-            }
+            
             var vm = new Mapper(config).Map<ClassSubjectVM>(classSubject);
-            vm.lstStudent = stuVmList;
+            vm.lstStudent = new List<StudentVM>();
+            var lsStu = await _studentServices.GetStudentsByClassSubject(id);
+            if (lsStu != null)
+            {
+                foreach (var i in lsStu)
+                {
+                    vm.lstStudent.Add(new StudentVM
+                    {
+                        id = i.UID,
+                        name = i.Name,
+                        status = i.Status
+                    });
+                }
+            }
+            //vm.lstStudent = stuVmList;
 
             return View(vm);
+        }
+
+        [Authorize(Roles = "student")]
+        public async Task<IActionResult> EnlistClass(string csId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentStudent = await _studentServices.GetStudentByAccount(userId);
+
+            var rs = await _classSubjectServices.AddStudent(csId, currentStudent.UID);
+            if (!rs)
+            {
+                return Problem("Cant add student to classSubject!");
+            }
+            return RedirectToAction(nameof(IndexForStudent));
         }
 
         // GET: ClassSubjects/Create
@@ -93,6 +130,10 @@ namespace StudentManagementSys.Controllers
         [Authorize(Roles = "staff")]
         public async Task<IActionResult> Create([Bind("classSubjectId,classSubjectCode,subjectCode,SubjectName,typeClassSubject,lstStudentID,TeacherID,room,schedule,Semester")] ClassSubjectDto classSubject)
         {
+            var teacher = await _staffServices.GetStaff(classSubject.TeacherID);
+            if(teacher== null) {
+                return NoContent(); 
+            }
             var rs = await _classSubjectServices.RegisterClassSubjectAsync(classSubject);
             if (!rs)
             {
@@ -159,6 +200,9 @@ namespace StudentManagementSys.Controllers
             if (StaffCheck == null) {
                 return NoContent();
             }
+            var oG = await _classSubjectServices.GetClassSubject(id);                               // form does not provide lstStudentID
+            classSubject.lstStudentID = oG.lstStudentID;                                            // lstStudentID will only updated by service: AddStudent
+
             var rs = await _classSubjectServices.UpdateClassSubject(id, classSubject);
             if (rs == null)
             {
@@ -171,11 +215,6 @@ namespace StudentManagementSys.Controllers
         [Authorize(Roles = "staff")]
         public async Task<IActionResult> Delete(string id)
         {
-            //if (id == null || _context.ClassSubject == null)
-            //{
-            //    return NotFound();
-            //}
-
             var classSubject = await _classSubjectServices.GetClassSubject(id);
             if (classSubject == null)
             {
@@ -210,7 +249,21 @@ namespace StudentManagementSys.Controllers
             return RedirectToAction(nameof(Edit), new {id = cid});
         }
 
-        
+        [Authorize(Roles = "student")]
+        public async Task<IActionResult> RemoveFromClassSubjectForStudent(string csId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentStudent = await _studentServices.GetStudentByAccount(userId);
+
+            var rs = await _classSubjectServices.RemoveStudent(csId, currentStudent.UID);
+            if (!rs)
+            {
+                return Problem("Cant Remove student From classSubject!");
+            }
+            return RedirectToAction(nameof(IndexForStudent));
+        }
+
+
         [Authorize(Roles = "staff")]
         public async Task<IActionResult> AddToClassSubjectTable(string CsId)
         {

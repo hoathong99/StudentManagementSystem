@@ -14,44 +14,58 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="SchoolSession" class="control-label"></label>
-                <input asp-for="SchoolSession" class="form-control" />
+                @if (User.IsInRole("student"))
+                {
+                    <input asp-for="SchoolSession" disabled class="form-control" />
+                }
+                @if (User.IsInRole("staff"))
+                {
+                    <input asp-for="SchoolSession" class="form-control" />
+                }
                 <span asp-validation-for="SchoolSession" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="AccountId" class="control-label"></label>
-                <input asp-for="AccountId" class="form-control" />
+                <input asp-for="AccountId" disabled class="form-control" />
                 <span asp-validation-for="AccountId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="CPA" class="control-label"></label>
-                <input asp-for="CPA" class="form-control" />
+                <input asp-for="CPA" disabled class="form-control" />
                 <span asp-validation-for="CPA" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="TotalCredit" class="control-label"></label>
-                <input asp-for="TotalCredit" class="form-control" />
+                <input asp-for="TotalCredit" disabled class="form-control" />
                 <span asp-validation-for="TotalCredit" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="PassedCredit" class="control-label"></label>
-                <input asp-for="PassedCredit" class="form-control" />
+                <input asp-for="PassedCredit" disabled class="form-control" />
                 <span asp-validation-for="PassedCredit" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ClassRoomID" class="control-label"></label>
-                <input asp-for="ClassRoomID" class="form-control" />
+                <input asp-for="ClassRoomID" disabled class="form-control" />
                 <span asp-validation-for="ClassRoomID" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Program" class="control-label"></label>
-                <input asp-for="Program" class="form-control" />
+                @if (User.IsInRole("student"))
+                {
+                    <input asp-for="Program" disabled class="form-control" />
+                }
+                @if (User.IsInRole("staff"))
+                {
+                    <input asp-for="Program" class="form-control" />
+                }
                 <span asp-validation-for="Program" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label asp-for="SubjectEnlisted" class="control-label"></label>
                 <input asp-for="SubjectEnlisted" class="form-control" />
                 <span asp-validation-for="SubjectEnlisted" class="text-danger"></span>
-            </div>
+            </div>*@
             <input type="hidden" asp-for="UID" />
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -60,7 +74,14 @@
             </div>
             <div class="form-group">
                 <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
+                @if (User.IsInRole("staff"))
+                {
+                    <input asp-for="Status" class="form-control" />
+                }
+                @if (User.IsInRole("student"))
+                {
+                    <input asp-for="Status" disabled class="form-control" />
+                }
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -70,7 +91,14 @@
             </div>
             <div class="form-group">
                 <label asp-for="Type" class="control-label"></label>
-                <input asp-for="Type" class="form-control" />
+                @if (User.IsInRole("staff"))
+                {
+                    <input asp-for="Type" disabled class="form-control" />
+                }
+                @if (User.IsInRole("student"))
+                {
+                    <input asp-for="Type" disabled class="form-control" />
+                }
                 <span asp-validation-for="Type" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -110,7 +138,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Authority" class="control-label"></label>
-                <input asp-for="Authority" class="form-control" />
+                <input asp-for="Authority" disabled class="form-control" />
                 <span asp-validation-for="Authority" class="text-danger"></span>
             </div>
             <div class="form-group">

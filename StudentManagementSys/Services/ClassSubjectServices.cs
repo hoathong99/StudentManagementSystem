@@ -73,6 +73,25 @@ namespace StudentManagementSys.Services
             return lsStuDto;
         }
 
+        public async Task<List<ClassSubjectDto>> GetClassSubjectsByStudent(string sId)
+        {
+            var mapper = new Mapper(config);
+
+            if (_context.ClassSubject == null)
+            {
+                return null;
+            }
+            List<ClassSubject> lsCs = await _context.ClassSubject.Where(x => x.lstStudentID.Contains(sId)).ToListAsync();
+            List<ClassSubjectDto> lsStuDto = new List<ClassSubjectDto>();
+
+            foreach (ClassSubject s in lsCs)
+            {
+                lsStuDto.Add(mapper.Map<ClassSubjectDto>(s));
+            }
+
+            return lsStuDto;
+        }
+
         public async Task<ClassSubjectDto> GetClassSubject(String id)
         {
             var mapper = new Mapper(config);
@@ -97,7 +116,7 @@ namespace StudentManagementSys.Services
             var oG = await GetClassSubject(id);
             stuDto.classSubjectCode = stuDto.subjectCode;
             stuDto.classSubjectId = oG.classSubjectId;
-            stuDto.lstStudentID = oG.lstStudentID;
+            //stuDto.lstStudentID = oG.lstStudentID;
         
             if (id != stuDto.classSubjectId)
             {
