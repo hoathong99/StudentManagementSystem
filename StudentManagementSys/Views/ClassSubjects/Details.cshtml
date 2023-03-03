@@ -1,4 +1,4 @@
-﻿@model StudentManagementSys.Controllers.Dto.ClassSubjectDto
+﻿@model StudentManagementSys.Views.ViewModels.ClassSubjectVM
 
 @{
     ViewData["Title"] = "Details";
@@ -10,12 +10,18 @@
     <h4>ClassSubject</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.classSubjectId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.classSubjectId)
+        </dd>
+@*        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.classSubjectCode)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.classSubjectCode)
-        </dd>
+        </dd>*@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.subjectCode)
         </dt>
@@ -34,12 +40,12 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.typeClassSubject)
         </dd>
-        <dt class = "col-sm-2">
+        @*<dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.lstStudentID)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.lstStudentID)
-        </dd>
+        </dd>*@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.TeacherID)
         </dt>
@@ -65,6 +71,35 @@
             @Html.DisplayFor(model => model.Semester)
         </dd>
     </dl>
+</div>
+<div>
+    <h4>Students: </h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    ID
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.lstStudent)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.id)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.classSubjectId">Edit</a> |

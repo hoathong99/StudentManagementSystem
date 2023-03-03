@@ -1,24 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using StudentManagementSys.Controllers.Dto;
 
-namespace StudentManagementSys.Views.Classrooms
+namespace StudentManagementSys.Views.ViewModels
 {
     public class ClassroomVM
     {
-        public String CRID { get; set; }
+        public string CRID { get; set; }
         public List<StudentVM>? StudentsID { get; set; }
-        public String? HomeRoomTeacherID { get; set; }
-        public String? HomeRoomTeacherName { get; set; }
-        public String? MonitorID { get; set; }
+        public string? HomeRoomTeacherID { get; set; }
+        public string? HomeRoomTeacherName { get; set; }
+        public string? MonitorID { get; set; }
         public IEnumerable<SelectListItem> StaffList { get; set; }
         public IEnumerable<SelectListItem> StudentList { get; set; }
 
-    }
-    public class StudentVM
-    {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string status { get; set; }
     }
 
     public class AddStudentToClassVM

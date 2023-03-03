@@ -12,7 +12,7 @@ using StudentManagementSys.Controllers.Dto;
 using StudentManagementSys.Data;
 using StudentManagementSys.Model;
 using StudentManagementSys.Services;
-using StudentManagementSys.Views.Classrooms;
+using StudentManagementSys.Views.ViewModels;
 
 namespace StudentManagementSys.Controllers
 {
@@ -153,7 +153,11 @@ namespace StudentManagementSys.Controllers
         {
             System.Console.WriteLine("Add student to class: /n");
             System.Console.WriteLine("sid: "+sid +" cid: "+cid+"/n");
-            await _classroomServices.AddStudent(sid, cid);
+            var rs = await _classroomServices.AddStudent(sid, cid);
+            if(rs == false)
+            {
+                return Problem("AddToClassAsyn not working!!");
+            }
             return NoContent();
         }
 

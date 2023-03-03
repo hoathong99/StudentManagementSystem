@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Security.Claims;
-using StudentManagementSys.Views.Classrooms;
 
 namespace StudentManagementSys.Controllers
 {

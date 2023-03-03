@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using StudentManagementSys.Controllers.Dto;
 using StudentManagementSys.Data;
 using StudentManagementSys.Services;
-using StudentManagementSys.Views.Roles;
+using StudentManagementSys.Views.ViewModels;
 
 namespace StudentManagementSys.Controllers
 {
@@ -22,10 +22,10 @@ namespace StudentManagementSys.Controllers
         }
 
         private MapperConfiguration config = new MapperConfiguration(cfg =>
-                    cfg.CreateMap<SimplifiedAccount, AssignRoleVM>()
+                    cfg.CreateMap<SimplifiedAccount, RolesVM>()
         );
         private MapperConfiguration configReversed = new MapperConfiguration(cfg =>
-                    cfg.CreateMap<AssignRoleVM, SimplifiedAccount>()
+                    cfg.CreateMap<RolesVM, SimplifiedAccount>()
         );
 
         public IActionResult Index()
@@ -93,12 +93,12 @@ namespace StudentManagementSys.Controllers
             var ls = await _roleServices.GetAllAccounts();
             var account = ls.FirstOrDefault(i => i.accountId == id);
 
-            var rs = new Mapper(config).Map<AssignRoleVM>(account);
+            var rs = new Mapper(config).Map<RolesVM>(account);
             rs.RoleList = selectListItems;
             return View(rs);
         }
         [HttpPost]
-        public async Task<IActionResult> SetRole([Bind("UID,accountId,Authority")] AssignRoleVM vm)
+        public async Task<IActionResult> SetRole([Bind("UID,accountId,Authority")] RolesVM vm)
         {
             var sA = new Mapper(configReversed).Map<SimplifiedAccount>(vm);
             var rs = await _roleServices.AssignRole(sA);

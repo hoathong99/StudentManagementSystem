@@ -121,6 +121,23 @@ namespace StudentManagementSys.Services
             return rs;
         }
 
+        public async Task<List<StudentDto>> GetStudentsByClassSubject(string cid)
+        {
+            var mapper = new Mapper(config);
+
+
+            if (_context.Student == null)
+            {
+                return null;
+            }
+            List<Student> lsStu = _context.Student.Where(x => x.SubjectEnlisted.Contains(cid)).ToList();
+            List<StudentDto> lsStuDto = new List<StudentDto>();
+
+            lsStuDto = mapper.Map<List<StudentDto>>(lsStu);
+
+            return lsStuDto;
+        }
+
         public async Task<StudentDto> UpdateStudent(string id, StudentDto stuDto)
         {
             if (id != stuDto.UID)

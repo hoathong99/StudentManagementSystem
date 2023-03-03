@@ -1,4 +1,4 @@
-﻿@model StudentManagementSys.Controllers.Dto.ClassSubjectDto
+﻿@model StudentManagementSys.Views.ViewModels.ClassSubjectVM
 
 @{
     ViewData["Title"] = "Edit";
@@ -13,11 +13,11 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="classSubjectId" />
-            <div class="form-group">
+ @*           <div class="form-group">
                 <label asp-for="classSubjectCode" class="control-label"></label>
                 <input asp-for="classSubjectCode" class="form-control" />
                 <span asp-validation-for="classSubjectCode" class="text-danger"></span>
-            </div>
+            </div>*@
             <div class="form-group">
                 <label asp-for="subjectCode" class="control-label"></label>
                 <input asp-for="subjectCode" class="form-control" />
@@ -33,11 +33,11 @@
                 <input asp-for="typeClassSubject" class="form-control" />
                 <span asp-validation-for="typeClassSubject" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label asp-for="lstStudentID" class="control-label"></label>
                 <input asp-for="lstStudentID" class="form-control" />
                 <span asp-validation-for="lstStudentID" class="text-danger"></span>
-            </div>
+            </div>*@
             <div class="form-group">
                 <label asp-for="TeacherID" class="control-label"></label>
                 <input asp-for="TeacherID" class="form-control" />
@@ -64,9 +64,42 @@
         </form>
     </div>
 </div>
-
+<div>
+    <h4>Students: </h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    ID
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.lstStudent)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.id)
+                    </td>
+                    <td>
+                        <a asp-action="RemoveFromClassSubject" asp-route-sid="@item.id" asp-route-cid="@Model.classSubjectId">remove</a>
+                    </td>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 <div>
     <a asp-action="Index">Back to List</a>
+    <a asp-action="AddToClassSubjectTable" asp-route-CsId="@Model.classSubjectId">AddToClassSubjectTable</a>
 </div>
 
 @section Scripts {

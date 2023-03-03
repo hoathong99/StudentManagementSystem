@@ -7,16 +7,19 @@ using StudentManagementSys.Model;
 using StudentManagementSys.Data;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Identity;
 
 namespace StudentManagementSys.Services
 {
     public class ClassSubjectServices
     {
         private readonly StudentManagementSysContext _context;
+        private readonly StudentServices _studentService;
 
-        public ClassSubjectServices(StudentManagementSysContext context)
+        public ClassSubjectServices(StudentManagementSysContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _studentService = new StudentServices(context, userManager);
         }
 
         //AutoMapper Configuration
@@ -37,7 +40,14 @@ namespace StudentManagementSys.Services
 
         //Methods
         public async Task<Boolean> RegisterClassSubjectAsync(ClassSubjectDto stDto) {
-
+            if(stDto.subjectCode == null)
+            {
+                stDto.subjectCode = stDto.classSubjectCode;
+            }
+            if (stDto.classSubjectCode == null)
+            {
+                stDto.classSubjectCode = stDto.subjectCode;
+            }
             _context.Add(new Mapper(configReversed).Map<ClassSubject>(stDto));
             await _context.SaveChangesAsync();
             return _context.SaveChangesAsync().IsCompletedSuccessfully;
@@ -78,11 +88,17 @@ namespace StudentManagementSys.Services
                 return null;
             }
             var rs = mapper.Map<ClassSubjectDto>(classSubject);
+            rs.lstStudentID = rs.lstStudentID == null ? new List<String>() : rs.lstStudentID;
             return rs;
         }
 
         public async Task<ClassSubjectDto> UpdateClassSubject(string id, ClassSubjectDto stuDto)
         {
+            var oG = await GetClassSubject(id);
+            stuDto.classSubjectCode = stuDto.subjectCode;
+            stuDto.classSubjectId = oG.classSubjectId;
+            stuDto.lstStudentID = oG.lstStudentID;
+        
             if (id != stuDto.classSubjectId)
             {
                 return null;
@@ -121,58 +137,84 @@ namespace StudentManagementSys.Services
         public async Task<Boolean> AddStudent(string CsId, string sId)
         {
             var Cs = await this.GetClassSubject(CsId);
+            var Stu = await _studentService.GetStudent(sId);
             if (Cs == null)
             {
                 return false;
             }
-            if(Cs.lstStudentID == null)
+            if (Stu == null)
+            {
+                return false;
+            }
+            if (Cs.lstStudentID == null)
             {
                 Cs.lstStudentID = new List<string>();
             }
             Cs.lstStudentID.Add(sId);
+
+            if (Stu.SubjectEnlisted == null)
+            {
+                Stu.SubjectEnlisted = new List<string>();
+            }
+
+            if (!Stu.SubjectEnlisted.Contains(CsId))
+            {
+                Stu.SubjectEnlisted.Add(CsId);
+            }
+            
             var rs = await this.UpdateClassSubject(CsId, Cs);
-            return this.UpdateClassSubject(CsId, Cs).IsCompletedSuccessfully;
+            var rs2 = await _studentService.UpdateStudent(sId, Stu);
+            bool flag = (rs == null || rs2 == null) ? false : true;
+
+            return flag;
         }
 
-        public async Task<Boolean> AddStudent(string CsId, List<string> lst)
-        {
-            var Cs = await this.GetClassSubject(CsId);
-            if (Cs == null)
-            {
-                return false;
-            }
-            if (Cs.lstStudentID == null)
-            {
-                Cs.lstStudentID = new List<string>();
-            }
-            Cs.lstStudentID.AddRange(lst);
-            var rs = await this.UpdateClassSubject(CsId, Cs);
-            return this.UpdateClassSubject(CsId, Cs).IsCompletedSuccessfully;
-        }
+        //public async Task<Boolean> AddStudent(string CsId, List<string> lst)
+        //{
+        //    var Cs = await this.GetClassSubject(CsId);
+        //    if (Cs == null)
+        //    {
+        //        return false;
+        //    }
+        //    if (Cs.lstStudentID == null)
+        //    {
+        //        Cs.lstStudentID = new List<string>();
+        //    }
+        //    Cs.lstStudentID.AddRange(lst);
+        //    var rs = await this.UpdateClassSubject(CsId, Cs);
+        //    return this.UpdateClassSubject(CsId, Cs).IsCompletedSuccessfully;
+        //}
 
-        public async Task<Boolean> RemoveStudent(string CsId, List<string> lst)
-        {
-            var Cs = await this.GetClassSubject(CsId);
-            if (Cs == null)
-            {
-                return false;
-            }
-            if (Cs.lstStudentID == null)
-            {
-                Cs.lstStudentID = new List<string>();
-            }
-            foreach (var item in lst)
-            {
-                Cs.lstStudentID.Remove(item);
-            }
-            var rs = await this.UpdateClassSubject(CsId, Cs);
-            return this.UpdateClassSubject(CsId, Cs).IsCompletedSuccessfully;
-        }
+        //public async Task<Boolean> RemoveStudent(string CsId, List<string> lst)
+        //{
+        //    var Cs = await this.GetClassSubject(CsId);
+        //    if (Cs == null)
+        //    {
+        //        return false;
+        //    }
+        //    if (Cs.lstStudentID == null)
+        //    {
+        //        Cs.lstStudentID = new List<string>();
+        //    }
+        //    foreach (var item in lst)
+        //    {
+        //        Cs.lstStudentID.Remove(item);
+        //    }
+        //    var rs = await this.UpdateClassSubject(CsId, Cs);
+        //    bool flag = rs == null ? false : true;
+
+        //    return flag;
+        //}
 
         public async Task<Boolean> RemoveStudent(string CsId, string sId)
         {
             var Cs = await this.GetClassSubject(CsId);
+            var Stu = await _studentService.GetStudent(sId);
             if (Cs == null)
+            {
+                return false;
+            }
+            if (Stu == null)
             {
                 return false;
             }
@@ -181,8 +223,18 @@ namespace StudentManagementSys.Services
                 Cs.lstStudentID = new List<string>();
             }
             Cs.lstStudentID.Remove(sId);
-            var rs = await this.UpdateClassSubject(CsId, Cs);
-            return this.UpdateClassSubject(CsId, Cs).IsCompletedSuccessfully;
+            if (Stu.SubjectEnlisted == null)
+            {
+                Stu.SubjectEnlisted = new List<string>();
+            }
+            Stu.SubjectEnlisted.Remove(CsId);
+
+            var rs = await _studentService.UpdateStudent(sId, Stu);
+            var rs2 = await this.UpdateClassSubject(CsId, Cs);
+
+            bool flag = (rs == null || rs2 ==null) ? false : true;
+
+            return flag;
         }
 
     }

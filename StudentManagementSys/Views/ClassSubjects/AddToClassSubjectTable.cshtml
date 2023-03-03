@@ -1,7 +1,7 @@
 ﻿@model StudentManagementSys.Views.ViewModels.AddStudentToClassVM
 
 @{
-    ViewData["Title"] = "StudentList";
+    ViewData["Title"] = "AddToClassSubjectTable";
 }
 
 <h1>Available students</h1>
@@ -47,7 +47,7 @@
                 </td>
 
                 <td>
-                    <a asp-action="AddToClass" asp-route-sid="@item.UID" asp-route-cid="@Model.cid">Add to class</a>
+                    <a asp-action="AddStudentToClassSubject" asp-route-sid="@item.UID" asp-route-csid="@Model.cid">Add to class</a>
                 </td>
             </tr>
         }

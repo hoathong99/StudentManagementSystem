@@ -1,4 +1,4 @@
-﻿@model StudentManagementSys.Controllers.Dto.ClassSubjectDto
+﻿@model StudentManagementSys.Views.ViewModels.ClassSubjectVM
 @{
     ViewData["Title"] = "Create";
 }
@@ -16,11 +16,11 @@
                 <input asp-for="classSubjectCode" class="form-control" />
                 <span asp-validation-for="classSubjectCode" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label asp-for="subjectCode" class="control-label"></label>
                 <input asp-for="subjectCode" class="form-control" />
                 <span asp-validation-for="subjectCode" class="text-danger"></span>
-            </div>
+            </div>*@
             <div class="form-group">
                 <label asp-for="SubjectName" class="control-label"></label>
                 <input asp-for="SubjectName" class="form-control" />
@@ -31,11 +31,11 @@
                 <input asp-for="typeClassSubject" class="form-control" />
                 <span asp-validation-for="typeClassSubject" class="text-danger"></span>
             </div>
-            <div class="form-group">
+@*            <div class="form-group">
                 <label asp-for="lstStudentID" class="control-label"></label>
                 <input asp-for="lstStudentID" class="form-control" />
                 <span asp-validation-for="lstStudentID" class="text-danger"></span>
-            </div>
+            </div>*@
             <div class="form-group">
                 <label asp-for="TeacherID" class="control-label"></label>
                 <input asp-for="TeacherID" class="form-control" />

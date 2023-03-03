@@ -131,11 +131,12 @@ namespace StudentManagementSys.Services
         public async Task<Boolean> AddStudent(String sId, String cId)
         {
             var classroom = await GetClassroom(cId);
+            if (classroom == null) { return false; }
+
             var student = await _studentService.GetStudent(sId);
-            //if(student.ClassRoomID == "")
-            //{
-            //    await RemoveStudent(sId, student.ClassRoomID);                                // TODO 
-            //}
+            if (student == null) { return false; }
+
+            await RemoveStudent(sId, student.ClassRoomID);                                // remove student from it classroom
 
             var classroomDto = new Mapper(config).Map<ClassroomDto>(classroom);
 
@@ -164,6 +165,10 @@ namespace StudentManagementSys.Services
         {
             var classroom = await GetClassroom(cId);
             var student = await _studentService.GetStudent(sId);
+            if (student == null)
+            {
+                return false;
+            }
 
             var classroomDto = new Mapper(config).Map<ClassroomDto>(classroom);
             if(classroomDto == null)
@@ -175,17 +180,18 @@ namespace StudentManagementSys.Services
                 classroomDto.StudentsID = new List<string>();
             }
 
-            //if (!classroomDto.StudentsID.Contains(sId))
-            //{
-            //    classroomDto.StudentsID.Add(sId);
-            //    student.ClassRoomID = cId;
-            //}
             classroomDto.StudentsID.Remove(sId);
             student.ClassRoomID = "";
-
-            var rs = await UpdateClassroom(classroom.CRID, classroomDto);
+            if( classroom != null)
+            {
+                var rs = await UpdateClassroom(classroom.CRID, classroomDto);
+                if(rs == null)
+                {
+                    return false;
+                }
+            }
             var rsStu = await _studentService.UpdateStudent(sId, student);
-            if (rs == null || rsStu == null)
+            if (rsStu == null)
             {
                 return false;
             }
