@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace StudentManagementSys.Areas.Identity.Pages.Account
 {
@@ -21,11 +22,17 @@ namespace StudentManagementSys.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IUserStore<IdentityUser> _userStore;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, IUserStore<IdentityUser> userStore, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _userManager = userManager;
+            _userStore= userStore;
+            _roleManager= roleManager;
         }
 
         /// <summary>
@@ -90,6 +97,26 @@ namespace StudentManagementSys.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            // initilize default admin account and role for first time running
+            if(_userManager.Users.Where(x => x.UserName == "admin").FirstOrDefault() == null)
+            {
+                var user = CreateUser();
+
+                await _userStore.SetUserNameAsync(user, "admin", CancellationToken.None);
+
+                var result = await _userManager.CreateAsync(user, "123123");
+                if (!result.Succeeded)
+                {
+                    _logger.LogInformation("Could not create ADMIN account.");
+                }
+
+                if (_roleManager.Roles.Count<IdentityRole>() == 0)
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("staff"));
+                    await _roleManager.CreateAsync(new IdentityRole("student"));
+                }
+                await _userManager.AddToRoleAsync(user, "staff");
+            }
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 ModelState.AddModelError(string.Empty, ErrorMessage);
@@ -139,6 +166,19 @@ namespace StudentManagementSys.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+        private IdentityUser CreateUser()
+        {
+            try
+            {
+                return Activator.CreateInstance<IdentityUser>();
+            }
+            catch
+            {
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
+                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+            }
         }
     }
 }
