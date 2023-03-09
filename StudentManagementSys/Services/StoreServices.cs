@@ -6,16 +6,21 @@ using StudentManagementSys.Controllers.Dto;
 using StudentManagementSys.Model;
 using StudentManagementSys.Data;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
 
 namespace StudentManagementSys.Services
 {
     public class StoreServices
     {
         private readonly StudentManagementSysContext _context;
-
-        public StoreServices(StudentManagementSysContext context)
+        private readonly StudentServices _studentServices;
+        private readonly StaffServices _staffServices;
+        public StoreServices(StudentManagementSysContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _studentServices = new StudentServices(context, userManager);
+            _staffServices = new StaffServices(context, userManager);
         }
 
         //Automapper Configuration
@@ -49,7 +54,24 @@ namespace StudentManagementSys.Services
 
 
         //Methods
-        public async Task<Boolean> RegisterStoreAsync(StoreDto storeDto) {
+        public async Task<Boolean> RegisterStoreAsync(StoreDto storeDto, String aId) {
+            var Stu = await _studentServices.GetStudentByAccount(aId);
+            if (Stu == null)
+            {
+                var Staf = await _staffServices.GetStaffByAccount(aId);
+                if (Staf == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    storeDto.OwnerID = Staf.UID;
+                }
+            }
+            else
+            {
+                storeDto.OwnerID = Stu.UID;
+            }
             var mapper = new Mapper(configReversed);
             _context.Add(mapper.Map<Store>(storeDto));
             await _context.SaveChangesAsync();
@@ -77,6 +99,43 @@ namespace StudentManagementSys.Services
 
         public async Task<StoreDto> GetStore(String id)
         {
+            if (id == null || _context.Store == null)
+            {
+                return null;
+            }
+            var store = await _context.Store
+                .FirstOrDefaultAsync(m => m.SID == id);
+            if (store == null)
+            {
+                return null;
+            }
+            var mapper = new Mapper(config);
+            StoreDto rs = mapper.Map<StoreDto>(store);
+            rs.Items = mapStringToList(store.Items).Result != null ? mapStringToList(store.Items).Result.Value : new List<ItemDto>();
+            return rs;
+        }
+
+        public async Task<StoreDto> GetStoreByAccount(String aid)
+        {
+            String id = "";
+            var Stu = await _studentServices.GetStudentByAccount(aid);
+            if (Stu == null)
+            {
+                var Staf = await _staffServices.GetStaffByAccount(aid);
+                if(Staf == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    id = Staf.StoreID;
+                }
+            }
+            else
+            {
+                id = Stu.StoreID;
+            }
+
             if (id == null || _context.Store == null)
             {
                 return null;
