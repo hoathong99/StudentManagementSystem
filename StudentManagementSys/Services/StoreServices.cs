@@ -8,6 +8,7 @@ using StudentManagementSys.Data;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
+using Microsoft.CodeAnalysis.Elfie.Model.Strings;
 
 namespace StudentManagementSys.Services
 {
@@ -53,29 +54,31 @@ namespace StudentManagementSys.Services
         }
 
 
-        //Methods
-        public async Task<Boolean> RegisterStoreAsync(StoreDto storeDto, String aId) {
+        //Methods                                                                                       // register store, update owner information of said store
+        public async Task<Boolean> RegisterStoreAsync(StoreDto storeDto, String aId) {                  // return true if success / false if not
             var Stu = await _studentServices.GetStudentByAccount(aId);
-            if (Stu == null)
-            {
-                var Staf = await _staffServices.GetStaffByAccount(aId);
-                if (Staf == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    storeDto.OwnerID = Staf.UID;
-                }
-            }
-            else
+            var Staf = await _staffServices.GetStaffByAccount(aId);
+            var mapper = new Mapper(configReversed);
+            
+            if (Stu != null)
             {
                 storeDto.OwnerID = Stu.UID;
+                var savingStore = _context.Add(mapper.Map<Store>(storeDto));
+                await _context.SaveChangesAsync();
+                Stu.StoreID = savingStore.Entity.SID;
+                await _studentServices.UpdateStudent(Stu.UID, Stu);
+                return true;
             }
-            var mapper = new Mapper(configReversed);
-            _context.Add(mapper.Map<Store>(storeDto));
-            await _context.SaveChangesAsync();
-            return _context.SaveChangesAsync().IsCompletedSuccessfully;
+            if(Staf != null)
+            {
+                storeDto.OwnerID = Staf.UID;
+                var savingStore = _context.Add(mapper.Map<Store>(storeDto));
+                await _context.SaveChangesAsync();
+                Staf.StoreID = savingStore.Entity.SID;
+                await _staffServices.UpdateStaff(Staf.UID, Staf);
+                return true;
+            }
+            return false;
         }
 
         public async Task<List<StoreDto>> GetAllStores()

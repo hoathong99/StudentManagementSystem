@@ -13,6 +13,7 @@ using StudentManagementSys.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using StudentManagementSys.Views.ViewModels;
 
 namespace StudentManagementSys.Controllers
 {
@@ -40,6 +41,13 @@ namespace StudentManagementSys.Controllers
         private MapperConfiguration itemMapConfig = new MapperConfiguration(cfg =>
                     cfg.CreateMap<Item, ItemDto>()
         );
+        private MapperConfiguration ToStoreVMConfig = new MapperConfiguration(cfg =>
+             cfg.CreateMap<StoreDto, StoresVM>()
+        );
+        private MapperConfiguration FromStoreVMConfig = new MapperConfiguration(cfg =>
+             cfg.CreateMap<StoresVM, StoreDto>()
+        );
+
         private async Task<ActionResult<List<ItemDto>>> mapStringToList(String? a)
         {
             var mapper = new Mapper(itemMapConfig);
@@ -111,11 +119,15 @@ namespace StudentManagementSys.Controllers
         public async Task<IActionResult> Create([Bind("SID,OwnerID,Status,description,Type")] StoreDto storeDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+            var userRole = User.FindFirstValue(ClaimTypes.Role);
             var rs = await _storeServices.RegisterStoreAsync(storeDto, userId);
             if (!rs)
             {
                 return Problem("cant create item.");
+            }
+            if (userRole == "student")
+            {
+                return RedirectToAction(nameof(CurrentStoreDetail));
             }
             return RedirectToAction(nameof(Index));
 
@@ -130,7 +142,32 @@ namespace StudentManagementSys.Controllers
             {
                 return NotFound();
             }
-            return View(store);
+            var vm = new Mapper(ToStoreVMConfig).Map<StoresVM>(store);
+            vm.SelectStoreTypeLst = new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "Staff", Value = "staff" },
+                    new SelectListItem { Text = "Student", Value = "student" },
+                };
+            return View(vm);
+        }
+
+        // GET: Stores/Edit/5
+        public async Task<IActionResult> EditWithMoreOption(string id)
+        {
+
+            var store = await _storeServices.GetStore(id);
+            if (store == null)
+            {
+                return NotFound();
+            }
+            var vm = new Mapper(ToStoreVMConfig).Map<StoresVM>(store);
+            vm.SelectStoreTypeLst = new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "Staff", Value = "staff" },
+                    new SelectListItem { Text = "Student", Value = "student" },
+                };
+            vm.AllowSetStoreOwnerId = true;
+            return View(vm);
         }
 
         // POST: Stores/Edit/5
@@ -139,11 +176,16 @@ namespace StudentManagementSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("SID,OwnerID,Status,description,Type")] StoreDto storeDto)
-        {          
+        {
+            var userRole = User.FindFirstValue(ClaimTypes.Role);
             var rs = await _storeServices.UpdateStore(id, storeDto);
             if(rs == null)
             {
                 return Problem("Cant edit store!");
+            }
+            if (userRole == "student")
+            {
+                return RedirectToAction(nameof(CurrentStoreDetail));
             }
             return RedirectToAction(nameof(Index));
            

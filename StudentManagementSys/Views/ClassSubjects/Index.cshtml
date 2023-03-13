@@ -93,3 +93,9 @@
 }
     </tbody>
 </table>
+@if (User.IsInRole("student"))
+{
+<div>
+        <a asp-action="IndexForStudent">Back to List</a>
+</div>
+}
