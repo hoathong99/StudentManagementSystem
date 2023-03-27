@@ -59,7 +59,7 @@ namespace StudentManagementSys.Controllers
         }
 
         // GET: Items/Create
-        public IActionResult Create()
+        public IActionResult CreateItem()
         {
             return View();
         }
@@ -69,7 +69,7 @@ namespace StudentManagementSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Desc,ItemID,price")] ItemDto itemDto)
+        public async Task<IActionResult> CreateItem([Bind("Name,Desc,ItemID,price")] ItemDto itemDto)
         {
             var rs = await _IteamService.RegisterItemAsync(itemDto);
             if (!rs)
@@ -78,6 +78,7 @@ namespace StudentManagementSys.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
 
         // GET: Items/Edit/5
         public async Task<IActionResult> Edit(string id)
@@ -110,7 +111,7 @@ namespace StudentManagementSys.Controllers
         }
 
         // GET: Items/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> DeleteItem(string id)
         {
             var item = await _IteamService.GetItem(id);
             if (item == null)

@@ -17,11 +17,13 @@ namespace StudentManagementSys.Services
         private readonly StudentManagementSysContext _context;
         private readonly StudentServices _studentServices;
         private readonly StaffServices _staffServices;
+        private readonly ItemServices _itemServices;
         public StoreServices(StudentManagementSysContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _studentServices = new StudentServices(context, userManager);
             _staffServices = new StaffServices(context, userManager);
+            _itemServices = new ItemServices(context);
         }
 
         //Automapper Configuration
@@ -44,13 +46,24 @@ namespace StudentManagementSys.Services
             List<ItemDto> items = new List<ItemDto>();
             foreach (String s in itemsId)
             {
-                var item = await _context.Item.FindAsync(s);
+                var item = await _itemServices.GetItem(s);
                 if (item != null)
                 {
                     items.Add(mapper.Map<ItemDto>(item));
                 }
             }
             return items;
+        }
+
+        private string mapListToString(List<ItemDto> items)
+        {
+            var rs = "";
+            foreach(var i in items)
+            {
+                rs += i.ItemID + ",";
+            }
+            rs.Remove(rs.Length - 1);
+            return rs;
         }
 
 
@@ -163,7 +176,7 @@ namespace StudentManagementSys.Services
             }
             var mapper = new Mapper(configReversed);
             var obj = mapper.Map<Store>(storeDto);
-            obj.Items = _context.Store.FindAsync(storeDto.SID).Result == null ? "" : _context.Store.FindAsync(storeDto.SID).Result.Items;
+            obj.Items = _context.Store.FindAsync(storeDto.SID).Result == null ? "" : mapListToString(storeDto.Items);
             _context.ChangeTracker.Clear();
             _context.Entry(obj).State = EntityState.Modified;
             try
@@ -183,6 +196,7 @@ namespace StudentManagementSys.Services
             }
             return storeDto;
         }
+
         public async Task<Boolean> Delete(string id)
         {
             if (_context.Store == null)
@@ -197,6 +211,27 @@ namespace StudentManagementSys.Services
 
             await _context.SaveChangesAsync();
             return _context.SaveChangesAsync().IsCompletedSuccessfully;
+        }
+
+        public async Task<Boolean> addItemToStore(string iId, string sId)
+        {
+            var store = await GetStore(sId);
+            var item = await _itemServices.GetItem(iId);
+            if(item == null || !StoreExists(sId))
+            {
+                return false;
+            }
+            if(store.Items == null)
+            {
+                store.Items = new List<ItemDto>();
+            }
+            store.Items.Add(item);
+            var rs = await UpdateStore(sId, store);
+            if(rs == null)
+            {
+                return false;
+            }
+            return true;
         }
 
         private bool StoreExists(string id)

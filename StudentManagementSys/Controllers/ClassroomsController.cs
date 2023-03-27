@@ -147,7 +147,6 @@ namespace StudentManagementSys.Controllers
             }
         }
 
-        // GET: Classrooms/Create
         [Authorize(Roles = "staff")]
         public async Task<IActionResult> AddToClassAsync(string sid, string cid)
         {

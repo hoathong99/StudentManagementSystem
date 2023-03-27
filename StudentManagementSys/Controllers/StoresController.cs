@@ -82,11 +82,13 @@ namespace StudentManagementSys.Controllers
         {
             
             var rs = await _storeServices.GetStore(id);
+            var vm = new Mapper(ToStoreVMConfig).Map<StoresVM>(rs);
+
             if (rs == null)
             {
                 return NotFound();
             }
-            return View(rs);
+            return View(vm);
         }
 
         public async Task<IActionResult> CurrentStoreDetail()
@@ -97,16 +99,31 @@ namespace StudentManagementSys.Controllers
             var currentStore = await _storeServices.GetStoreByAccount(userId);
             if(currentStore == null)
             {
-                return RedirectToAction(nameof(Create));
+                return RedirectToAction(nameof(CreateStore));
             }
             else
             {
-                return View(currentStore);
+                var vm = new Mapper(ToStoreVMConfig).Map<StoresVM>(currentStore);
+                return View(vm);
             }
         }
 
         // GET: Stores/Create
-        public IActionResult Create()
+        public async Task<IActionResult> CreateItem(string classId)
+        {
+
+            var rs = await _storeServices.GetStore(classId);
+            var vm = new Mapper(ToStoreVMConfig).Map<StoresVM>(rs);
+
+            if (rs == null)
+            {
+                return NotFound();
+            }
+            return View(vm);
+        }
+
+        // GET: Stores/Create
+        public IActionResult CreateStore()
         {
             return View();
         }
@@ -116,7 +133,7 @@ namespace StudentManagementSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SID,OwnerID,Status,description,Type")] StoreDto storeDto)
+        public async Task<IActionResult> CreateStore([Bind("SID,OwnerID,Status,description,Type")] StoreDto storeDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userRole = User.FindFirstValue(ClaimTypes.Role);

@@ -17,5 +17,6 @@ namespace StudentManagementSys.Views.ViewModels
         public StoresVM() {
             AllowSetStoreOwnerId = false;
         }
+        public ItemDto ItemDto { get; set; }
     }
 }

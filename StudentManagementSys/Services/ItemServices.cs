@@ -73,6 +73,20 @@ namespace StudentManagementSys.Services
             return rs;
         }
 
+        public async Task<List<ItemDto>> GetItemByList(List<String> listId)
+        {
+            var mapper = new Mapper(config);
+            
+            if (listId == null || _context.Item == null)
+            {
+                return null;
+            }
+           
+            var rs = await _context.Item.Where(c => listId.Contains(c.ItemID)).ToListAsync();
+            var lstDto = mapper.Map<List<ItemDto>>(rs);
+            return lstDto;
+        }
+
         public async Task<ItemDto> UpdateItem(string id, ItemDto iDto)
         {
             if (id != iDto.ItemID)

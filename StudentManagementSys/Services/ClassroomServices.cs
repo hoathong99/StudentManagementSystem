@@ -85,6 +85,18 @@ namespace StudentManagementSys.Services
             return rs;
         }
 
+        public async Task<bool> RemoveMinitor(String cId)
+        {
+            var classroom = await this.GetClassroom(cId);
+            classroom.MonitorID = null;
+            var rs = await this.UpdateClassroom(cId,classroom);
+            if(rs == null)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public async Task<ClassroomDto> UpdateClassroom(string id, ClassroomDto stuDto)
         {
             if (id != stuDto.CRID)
@@ -106,19 +118,24 @@ namespace StudentManagementSys.Services
             }
         }
 
+        //delete classroom, update classroom/student db
         public async Task<Boolean> Delete(string id)
         {
             if (_context.Classroom == null)
             {
                 return false;
             }
-            var classroom = await _context.Classroom.FindAsync(id);
-            var Dto = new Mapper(config).Map<ClassroomDto>(classroom);
+            var classroomDto = await this.GetClassroom(id);
+            var classroom = new Mapper(configReversed).Map<Classroom>(classroomDto);
 
-            foreach(var s in Dto.StudentsID)
+            if(classroomDto.StudentsID != null)
             {
-                await RemoveStudent(s, id);
+                foreach (var s in classroomDto.StudentsID)
+                {
+                    await RemoveStudent(s, id);
+                }
             }
+                
             if (classroom != null)
             {
                 _context.Classroom.Remove(classroom);
@@ -128,6 +145,7 @@ namespace StudentManagementSys.Services
             return true;
         }
 
+        //add student to classroom and remove them from previous one
         public async Task<Boolean> AddStudent(String sId, String cId)
         {
             var classroom = await GetClassroom(cId);
@@ -161,6 +179,7 @@ namespace StudentManagementSys.Services
             return true;
         }
 
+        //Remove student from classroom and update both classroom/student db
         public async Task<Boolean> RemoveStudent(String sId, String cId)
         {
             var classroom = await GetClassroom(cId);
@@ -179,18 +198,22 @@ namespace StudentManagementSys.Services
             {
                 classroomDto.StudentsID = new List<string>();
             }
-
+            if (classroomDto.MonitorID == sId)                                      // reset monitor if student removed is that of the classroom
+            {
+                classroomDto.MonitorID = null;
+            }
             classroomDto.StudentsID.Remove(sId);
-            student.ClassRoomID = "";
+            
+            student.ClassRoomID = null;
             if( classroom != null)
             {
-                var rs = await UpdateClassroom(classroom.CRID, classroomDto);
+                var rs = await UpdateClassroom(classroom.CRID, classroomDto);       //update classroom db
                 if(rs == null)
                 {
                     return false;
                 }
             }
-            var rsStu = await _studentService.UpdateStudent(sId, student);
+            var rsStu = await _studentService.UpdateStudent(sId, student);          //update student db
             if (rsStu == null)
             {
                 return false;

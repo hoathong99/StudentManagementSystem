@@ -1,4 +1,4 @@
-﻿@model StudentManagementSys.Controllers.Dto.StoreDto
+﻿@model StudentManagementSys.Views.ViewModels.StoresVM
 
 @{
     ViewData["Title"] = "CurrentStoreDetail";
@@ -35,6 +35,35 @@
             @Html.DisplayFor(model => model.Type)
         </dd>
     </dl>
+</div>
+<div>
+    <h4>items: </h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    ID
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.price)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.SID">Edit</a> |
