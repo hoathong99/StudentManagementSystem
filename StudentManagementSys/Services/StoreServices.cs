@@ -69,11 +69,12 @@ namespace StudentManagementSys.Services
         private string mapListToString(List<ItemDto> items)
         {
             var rs = "";
+            List<String> listString = new List<string>();
             foreach (var i in items)
             {
-                rs += i.ItemID + ",";
+                listString.Add(i.ItemID);
             }
-            rs.Remove(rs.Length - 1);
+            rs = String.Join(",", listString);
             return rs;
         }
 

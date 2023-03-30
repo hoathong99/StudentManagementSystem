@@ -11,6 +11,8 @@ using AutoMapper;
 using StudentManagementSys.Controllers.Dto;
 using StudentManagementSys.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using StudentManagementSys.Views.ViewModels;
 
 namespace StudentManagementSys.Controllers
 {
@@ -19,11 +21,12 @@ namespace StudentManagementSys.Controllers
     {
         private readonly StudentManagementSysContext _context;
         private readonly ItemServices _IteamService;
-
-        public ItemsController(StudentManagementSysContext context)
+        private readonly StoreServices _StoreServices;
+        public ItemsController(StudentManagementSysContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _IteamService = new ItemServices(context);
+            _StoreServices = new StoreServices(context, userManager);
         }
 
         // AutoMapper configuration
@@ -35,6 +38,13 @@ namespace StudentManagementSys.Controllers
                     cfg.CreateMap<ItemDto, Item>()
         );
 
+        private MapperConfiguration DtoToVmConfig = new MapperConfiguration(cfg =>
+                    cfg.CreateMap<ItemDto, ItemsVM>()
+        );
+
+        private MapperConfiguration VmToDtoConfig = new MapperConfiguration(cfg =>
+                    cfg.CreateMap<ItemsVM, ItemDto>()
+        );
 
         // GET: Items
         public async Task<IActionResult> Index()
@@ -59,9 +69,10 @@ namespace StudentManagementSys.Controllers
         }
 
         // GET: Items/Create
-        public IActionResult CreateItem()
+        public IActionResult CreateItem( string? storeId)
         {
-            return View();
+            var vm = new ItemsVM { SID = storeId };
+            return View(vm);
         }
 
         // POST: Items/Create
@@ -69,10 +80,12 @@ namespace StudentManagementSys.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateItem([Bind("Name,Desc,ItemID,price")] ItemDto itemDto)
+        public async Task<IActionResult> CreateItem([Bind("Name,Desc,ItemID,price,SID")] ItemsVM vm)
         {
-            var rs = await _IteamService.RegisterItemAsync(itemDto);
-            if (!rs)
+            var dto = new Mapper(VmToDtoConfig).Map<ItemDto>(vm);
+            var rs = await _IteamService.RegisterItemAsync(dto);
+            var rs1 = await _StoreServices.addItemToStore(rs.ItemID, vm.SID);
+            if (rs == null)
             {
                 return Problem("Cant create item.");
             }
@@ -125,9 +138,9 @@ namespace StudentManagementSys.Controllers
         // POST: Items/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(string ItemID)
         {
-            var rs = await _IteamService.Delete(id);
+            var rs = await _IteamService.Delete(ItemID);
             if (!rs)
             {
                 return Problem("Cant delete item.");
