@@ -89,7 +89,8 @@ namespace StudentManagementSys.Controllers
             {
                 return Problem("Cant create item.");
             }
-            return RedirectToAction(nameof(Index));
+            //return RedirectToAction(nameof(Index));
+            return RedirectToAction("Edit", "Stores", new { id = vm.SID });
         }
 
 

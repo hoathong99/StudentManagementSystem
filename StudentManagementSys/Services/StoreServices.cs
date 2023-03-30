@@ -254,26 +254,35 @@ namespace StudentManagementSys.Services
         {
             var store = await GetStore(sId);
             var item = await _itemServices.GetItem(iId);
-            if (item == null || !StoreExists(sId))
-            {
-                return false;
-            }
-            if (store.Items == null)
-            {
-                return true;
+            //if (item == null || !StoreExists(sId))
+            //{
+            //    return false;
+            //}
+            //if (store.Items == null)
+            //{
+            //    return true;
 
-            }
+            //}
 
-            if (store.Items.Contains(item))
+            //if (store.Items.Contains(item))
+            //{
+            //    store.Items.Remove(item);
+            //    var rs = await UpdateStore(sId, store);
+            //    if (rs == null)
+            //    {
+            //        return false;
+            //    }
+            //    return true;
+            //}
+            for(int i = 0; i< store.Items.Count; i++)
             {
-                store.Items.Remove(item);
-                var rs = await UpdateStore(sId, store);
-                if (rs == null)
+                if(store.Items.ElementAt(i).ItemID == iId)
                 {
-                    return false;
+                    store.Items.RemoveAt(i);
                 }
-                return true;
             }
+            var rs = await UpdateStore(sId, store);
+            await _itemServices.Delete(iId);
             return true;
         }
 

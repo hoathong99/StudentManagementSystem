@@ -235,6 +235,19 @@ namespace StudentManagementSys.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> DeleteItemFromTable(string Iid, string SId)
+        {
+
+            var store = await _storeServices.GetStore(SId);
+            if (store == null)
+            {
+                return NotFound();
+            }
+            //var vm = new Mapper(ToStoreVMConfig).Map<StoresVM>(store);
+            await _storeServices.RemoveItemFromStore(Iid, SId);
+            return RedirectToAction(nameof(Edit), new { id = SId });
+        }
+
         private bool StoreExists(string id)
         {
             return (_context.Store?.Any(e => e.SID == id)).GetValueOrDefault();

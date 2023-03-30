@@ -90,8 +90,8 @@
                         @Html.DisplayFor(modelItem => item.price)
                     </td>
                     <td>
-                        <a href="@Url.Action("DeleteItemFromTable", "Items", new { id = item.ItemID })">Delete Item</a>
-                        @*<a asp-action="DeleteItem" asp-route-csId="@item.ItemID">Remove</a>*@
+                        @*<a href="@Url.Action("DeleteItemFromTable", "Items", new { id = item.ItemID })">Delete Item</a>*@
+                        <a asp-action="DeleteItemFromTable" asp-route-Iid="@item.ItemID" asp-route-SId="@Model.SID">Delete Item</a>
                     </td>
                 </tr>
             }
