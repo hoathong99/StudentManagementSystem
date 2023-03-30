@@ -29,11 +29,23 @@ namespace StudentManagementSys.Services
 
 
         //Methods
-        public async Task<Boolean> RegisterItemAsync(ItemDto itemDto) {
+        public async Task<ItemDto> RegisterItemAsync(ItemDto itemDto) {
 
-            _context.Add(new Mapper(configReversed).Map<Item>(itemDto));
-            await _context.SaveChangesAsync();
-            return _context.SaveChangesAsync().IsCompletedSuccessfully;
+            var item = new Mapper(configReversed).Map<Item>(itemDto);
+            _context.Add(item);
+            try
+            {
+                // Perform an asynchronous operation
+                await _context.SaveChangesAsync();
+                // If the operation completed successfully, return a success result
+                itemDto.ItemID = item.ItemID;
+                return itemDto;
+            }
+            catch (Exception ex)
+            {
+                // If an exception occurred during the operation, return an error result
+                return null;
+            }  
         }
 
         public async Task<List<ItemDto>> GetAllItems()

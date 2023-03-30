@@ -27,11 +27,12 @@ namespace StudentManagementSys.Services
         }
 
         //Automapper Configuration
-        private MapperConfiguration config = new MapperConfiguration(cfg =>
+        private MapperConfiguration storeToDtoConfig = new MapperConfiguration(cfg =>
              cfg.CreateMap<Store, StoreDto>()
+            .ForMember(x => x.Items, opt => opt.Ignore())
         );
 
-        private MapperConfiguration configReversed = new MapperConfiguration(cfg =>
+        private MapperConfiguration dtoToStoreConfig = new MapperConfiguration(cfg =>
                     cfg.CreateMap<StoreDto, Store>()
         );
 
@@ -51,6 +52,16 @@ namespace StudentManagementSys.Services
                 {
                     items.Add(mapper.Map<ItemDto>(item));
                 }
+                else
+                {
+                    var temp = new ItemDto { 
+                        ItemID = s,
+                        Desc = "not avaiable", 
+                        Name = "not avaible",
+                        price = 0 }
+                    ;
+                    items.Add(temp);
+                }
             }
             return items;
         }
@@ -58,7 +69,7 @@ namespace StudentManagementSys.Services
         private string mapListToString(List<ItemDto> items)
         {
             var rs = "";
-            foreach(var i in items)
+            foreach (var i in items)
             {
                 rs += i.ItemID + ",";
             }
@@ -68,11 +79,12 @@ namespace StudentManagementSys.Services
 
 
         //Methods                                                                                       // register store, update owner information of said store
-        public async Task<Boolean> RegisterStoreAsync(StoreDto storeDto, String aId) {                  // return true if success / false if not
+        public async Task<Boolean> RegisterStoreAsync(StoreDto storeDto, String aId)
+        {                  // return true if success / false if not
             var Stu = await _studentServices.GetStudentByAccount(aId);
             var Staf = await _staffServices.GetStaffByAccount(aId);
-            var mapper = new Mapper(configReversed);
-            
+            var mapper = new Mapper(dtoToStoreConfig);
+
             if (Stu != null)
             {
                 storeDto.OwnerID = Stu.UID;
@@ -82,7 +94,7 @@ namespace StudentManagementSys.Services
                 await _studentServices.UpdateStudent(Stu.UID, Stu);
                 return true;
             }
-            if(Staf != null)
+            if (Staf != null)
             {
                 storeDto.OwnerID = Staf.UID;
                 var savingStore = _context.Add(mapper.Map<Store>(storeDto));
@@ -98,13 +110,15 @@ namespace StudentManagementSys.Services
         {
             if (_context.Store != null)
             {
-                var mapper = new Mapper(config);
                 List<StoreDto> rs = new List<StoreDto>();
                 List<Store> lsStore = await _context.Store.ToListAsync();
-                foreach (Store s in lsStore)
-                {
-                    rs.Add(mapper.Map<StoreDto>(s));
-                }
+                //foreach (Store s in lsStore)
+                //{
+                //    var dto = mapper.Map<StoreDto>(s);
+                //    rs.Add(dto);
+                //}
+                //return rs;
+                rs = new Mapper(storeToDtoConfig).Map<List<StoreDto>>(lsStore);
                 return rs;
             }
             else
@@ -125,7 +139,7 @@ namespace StudentManagementSys.Services
             {
                 return null;
             }
-            var mapper = new Mapper(config);
+            var mapper = new Mapper(storeToDtoConfig);
             StoreDto rs = mapper.Map<StoreDto>(store);
             rs.Items = mapStringToList(store.Items).Result != null ? mapStringToList(store.Items).Result.Value : new List<ItemDto>();
             return rs;
@@ -138,7 +152,7 @@ namespace StudentManagementSys.Services
             if (Stu == null)
             {
                 var Staf = await _staffServices.GetStaffByAccount(aid);
-                if(Staf == null)
+                if (Staf == null)
                 {
                     return null;
                 }
@@ -162,7 +176,7 @@ namespace StudentManagementSys.Services
             {
                 return null;
             }
-            var mapper = new Mapper(config);
+            var mapper = new Mapper(storeToDtoConfig);
             StoreDto rs = mapper.Map<StoreDto>(store);
             rs.Items = mapStringToList(store.Items).Result != null ? mapStringToList(store.Items).Result.Value : new List<ItemDto>();
             return rs;
@@ -174,7 +188,7 @@ namespace StudentManagementSys.Services
             {
                 return null;
             }
-            var mapper = new Mapper(configReversed);
+            var mapper = new Mapper(dtoToStoreConfig);
             var obj = mapper.Map<Store>(storeDto);
             obj.Items = _context.Store.FindAsync(storeDto.SID).Result == null ? "" : mapListToString(storeDto.Items);
             _context.ChangeTracker.Clear();
@@ -217,19 +231,47 @@ namespace StudentManagementSys.Services
         {
             var store = await GetStore(sId);
             var item = await _itemServices.GetItem(iId);
-            if(item == null || !StoreExists(sId))
+            if (item == null || !StoreExists(sId))
             {
                 return false;
             }
-            if(store.Items == null)
+            if (store.Items == null)
             {
                 store.Items = new List<ItemDto>();
             }
             store.Items.Add(item);
             var rs = await UpdateStore(sId, store);
-            if(rs == null)
+            if (rs == null)
             {
                 return false;
+            }
+            return true;
+        }
+
+        // only remove item from store
+        public async Task<Boolean> RemoveItemFromStore(string iId, string sId)
+        {
+            var store = await GetStore(sId);
+            var item = await _itemServices.GetItem(iId);
+            if (item == null || !StoreExists(sId))
+            {
+                return false;
+            }
+            if (store.Items == null)
+            {
+                return true;
+
+            }
+
+            if (store.Items.Contains(item))
+            {
+                store.Items.Remove(item);
+                var rs = await UpdateStore(sId, store);
+                if (rs == null)
+                {
+                    return false;
+                }
+                return true;
             }
             return true;
         }

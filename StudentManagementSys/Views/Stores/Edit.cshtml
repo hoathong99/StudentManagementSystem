@@ -12,7 +12,7 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="SID" />
+            <input type="hidden" asp-for="@Model.SID" />
             <div class="form-group">
                 <label asp-for="OwnerID" class="control-label"></label>
                 <input placeholder="@Model.OwnerID" disabled class="form-control" />
@@ -62,7 +62,8 @@
     </div>
 </div>
 <div>
-    <a asp-action="CreateItem" asp-route-classId="SID">add new item</a>
+    @*<a asp-action="CreateItem" asp-route-classId="@Model.SID">add new item</a>*@
+    <a href="@Url.Action("CreateItem", "Items", new { storeId = Model.SID })">Create Item</a>
 </div>
 <div>
     <h4>items: </h4>
@@ -89,7 +90,8 @@
                         @Html.DisplayFor(modelItem => item.price)
                     </td>
                     <td>
-                        <a asp-action="DeleteItem" asp-route-csId="@item.ItemID">Remove</a>
+                        <a href="@Url.Action("DeleteItemFromTable", "Items", new { id = item.ItemID })">Delete Item</a>
+                        @*<a asp-action="DeleteItem" asp-route-csId="@item.ItemID">Remove</a>*@
                     </td>
                 </tr>
             }
